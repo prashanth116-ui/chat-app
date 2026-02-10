@@ -3,12 +3,18 @@ import type { User, Gender } from '@chat-app/shared';
 import { auth as authApi } from '../services/api';
 import { socketService } from '../services/socket';
 
+interface GuestLoginData {
+  gender: Gender;
+  countryId: number;
+  stateId?: number;
+}
+
 interface AuthContextType {
   user: User | null;
   isLoading: boolean;
   isAuthenticated: boolean;
   login: (email: string, password: string) => Promise<void>;
-  loginAsGuest: () => Promise<void>;
+  loginAsGuest: (data: GuestLoginData) => Promise<void>;
   register: (data: {
     email: string;
     password: string;
@@ -71,8 +77,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     await connectSocket();
   };
 
-  const loginAsGuest = async () => {
-    const response = await authApi.guest();
+  const loginAsGuest = async (data: GuestLoginData) => {
+    const response = await authApi.guest(data);
     localStorage.setItem('accessToken', response.accessToken);
     localStorage.setItem('refreshToken', response.refreshToken);
     setUser(response.user);

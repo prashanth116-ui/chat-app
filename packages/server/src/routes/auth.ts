@@ -39,9 +39,21 @@ router.post('/login', validate(loginSchema), async (req, res) => {
   }
 });
 
-router.post('/guest', async (_req, res) => {
+router.post('/guest', async (req, res) => {
   try {
-    const result = await authService.guestLogin();
+    const { gender, countryId, stateId } = req.body;
+
+    if (!gender) {
+      res.status(400).json({ error: 'Gender is required' });
+      return;
+    }
+
+    if (!countryId) {
+      res.status(400).json({ error: 'Country is required' });
+      return;
+    }
+
+    const result = await authService.guestLogin({ gender, countryId, stateId });
     res.status(201).json(result);
   } catch (error) {
     console.error('Guest login error:', error);

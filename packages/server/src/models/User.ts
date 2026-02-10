@@ -132,7 +132,7 @@ export async function getPublicUsersByIds(ids: string[]): Promise<UserPublic[]> 
 
 export async function updateUser(
   id: string,
-  data: Partial<{ username: string; avatarUrl: string; countryId: number; stateId: number }>
+  data: Partial<{ username: string; avatarUrl: string; gender: Gender; countryId: number; stateId: number }>
 ): Promise<User | null> {
   const updates: string[] = [];
   const values: unknown[] = [];
@@ -145,6 +145,10 @@ export async function updateUser(
   if (data.avatarUrl !== undefined) {
     updates.push(`avatar_url = $${paramIndex++}`);
     values.push(data.avatarUrl);
+  }
+  if (data.gender !== undefined) {
+    updates.push(`gender = $${paramIndex++}`);
+    values.push(data.gender);
   }
   if (data.countryId !== undefined) {
     updates.push(`country_id = $${paramIndex++}`);

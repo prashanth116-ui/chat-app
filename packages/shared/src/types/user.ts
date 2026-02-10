@@ -52,6 +52,7 @@ export interface AuthResponse {
 export interface UpdateProfileRequest {
   username?: string;
   avatarUrl?: string;
+  gender?: Gender;
   countryId?: number;
   stateId?: number;
 }

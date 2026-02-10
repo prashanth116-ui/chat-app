@@ -76,9 +76,10 @@ export const auth = {
       body: JSON.stringify(data),
     }),
 
-  guest: () =>
+  guest: (data: { gender: string; countryId: number; stateId?: number }) =>
     request<AuthResponse>('/api/auth/guest', {
       method: 'POST',
+      body: JSON.stringify(data),
     }),
 
   refresh: (refreshToken: string) =>

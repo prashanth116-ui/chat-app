@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import type { User, UpdateProfileRequest } from '@chat-app/shared';
+import { Gender } from '@chat-app/shared';
 import { useCountries, useStates } from '../../hooks/useRooms';
 import { users } from '../../services/api';
 import { Input } from '../common/Input';
@@ -14,6 +15,7 @@ interface EditProfileFormProps {
 
 export function EditProfileForm({ user, onSave, onCancel }: EditProfileFormProps) {
   const [username, setUsername] = useState(user.username);
+  const [gender, setGender] = useState<Gender>(user.gender);
   const [countryId, setCountryId] = useState<number | null>(user.countryId);
   const [stateId, setStateId] = useState<number | null>(user.stateId);
   const [isLoading, setIsLoading] = useState(false);
@@ -38,6 +40,9 @@ export function EditProfileForm({ user, onSave, onCancel }: EditProfileFormProps
 
       if (username !== user.username) {
         data.username = username;
+      }
+      if (gender !== user.gender) {
+        data.gender = gender;
       }
       if (countryId !== user.countryId) {
         data.countryId = countryId ?? undefined;
@@ -72,6 +77,20 @@ export function EditProfileForm({ user, onSave, onCancel }: EditProfileFormProps
         pattern="^[a-zA-Z0-9_]+$"
         required
       />
+
+      <div className={styles.field}>
+        <label className={styles.label}>Gender</label>
+        <select
+          value={gender}
+          onChange={(e) => setGender(e.target.value as Gender)}
+          className={styles.select}
+          required
+        >
+          <option value={Gender.MALE}>Male</option>
+          <option value={Gender.FEMALE}>Female</option>
+          <option value={Gender.OTHER}>Other</option>
+        </select>
+      </div>
 
       <div className={styles.field}>
         <label className={styles.label}>Country</label>

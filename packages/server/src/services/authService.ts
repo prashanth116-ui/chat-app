@@ -79,7 +79,13 @@ export async function refreshTokens(userId: string, email: string): Promise<{ ac
   return { accessToken, refreshToken };
 }
 
-export async function guestLogin(): Promise<AuthResponse> {
+interface GuestLoginData {
+  gender: Gender;
+  countryId: number;
+  stateId?: number;
+}
+
+export async function guestLogin(data: GuestLoginData): Promise<AuthResponse> {
   // Generate unique guest identifiers
   const guestId = `guest_${Date.now()}_${Math.random().toString(36).substring(2, 8)}`;
   const guestEmail = `${guestId}@guest.local`;
@@ -88,13 +94,15 @@ export async function guestLogin(): Promise<AuthResponse> {
   // Create a random password hash (guest can't login with password)
   const passwordHash = await hashPassword(Math.random().toString(36));
 
-  // Create guest user with minimal info
+  // Create guest user with provided gender and location
   const user = await UserModel.createUser({
     email: guestEmail,
     passwordHash,
     username: guestUsername,
-    gender: Gender.OTHER,
+    gender: data.gender,
     dateOfBirth: '2000-01-01', // Default date for guests (meets age requirement)
+    countryId: data.countryId,
+    stateId: data.stateId,
   });
 
   // Generate tokens
