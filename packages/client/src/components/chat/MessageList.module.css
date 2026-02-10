@@ -1,0 +1,88 @@
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 1rem;
+  overflow-y: auto;
+  flex: 1;
+}
+
+.empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  flex: 1;
+  color: var(--text-muted);
+  text-align: center;
+}
+
+.emptyHint {
+  font-size: 0.875rem;
+  margin-top: 0.25rem;
+}
+
+.message {
+  display: flex;
+  gap: 0.5rem;
+  max-width: 80%;
+}
+
+.message.own {
+  flex-direction: row-reverse;
+  align-self: flex-end;
+}
+
+.avatarPlaceholder {
+  width: 28px;
+  flex-shrink: 0;
+}
+
+.bubble {
+  background-color: var(--surface);
+  padding: 0.5rem 0.75rem;
+  border-radius: var(--radius-md);
+  border-top-left-radius: var(--radius-sm);
+}
+
+.own .bubble {
+  background-color: var(--primary);
+  color: white;
+  border-radius: var(--radius-md);
+  border-top-right-radius: var(--radius-sm);
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  margin-bottom: 0.25rem;
+}
+
+.username {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--primary);
+}
+
+.own .username {
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.content {
+  margin: 0;
+  word-break: break-word;
+  white-space: pre-wrap;
+}
+
+.time {
+  font-size: 0.625rem;
+  color: var(--text-muted);
+  display: block;
+  text-align: right;
+  margin-top: 0.25rem;
+}
+
+.own .time {
+  color: rgba(255, 255, 255, 0.7);
+}

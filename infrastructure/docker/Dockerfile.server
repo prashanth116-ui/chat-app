@@ -1,0 +1,28 @@
+FROM node:20-alpine
+
+WORKDIR /app
+
+# Install pnpm
+RUN npm install -g pnpm
+
+# Copy workspace files
+COPY package.json pnpm-workspace.yaml ./
+COPY packages/shared/package.json ./packages/shared/
+COPY packages/server/package.json ./packages/server/
+
+# Install dependencies
+RUN pnpm install
+
+# Copy source code
+COPY packages/shared ./packages/shared
+COPY packages/server ./packages/server
+COPY tsconfig.base.json ./
+
+# Build shared package
+RUN pnpm --filter @chat-app/shared build
+
+# Expose port
+EXPOSE 3001
+
+# Start development server
+CMD ["pnpm", "--filter", "@chat-app/server", "dev"]
