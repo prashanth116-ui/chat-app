@@ -9,6 +9,8 @@ interface MessageRow {
   content: string;
   message_type: 'text' | 'image' | 'system';
   created_at: Date;
+  edited_at: Date | null;
+  deleted_at: Date | null;
 }
 
 function rowToMessage(row: MessageRow): Message {
@@ -19,6 +21,8 @@ function rowToMessage(row: MessageRow): Message {
     content: row.content,
     messageType: row.message_type,
     createdAt: row.created_at.toISOString(),
+    editedAt: row.edited_at?.toISOString() ?? null,
+    deletedAt: row.deleted_at?.toISOString() ?? null,
   };
 }
 
@@ -96,4 +100,26 @@ export async function getMessageById(id: string): Promise<Message | null> {
 
 export async function deleteMessage(id: string): Promise<void> {
   await query('DELETE FROM messages WHERE id = $1', [id]);
+}
+
+export async function updateMessage(id: string, content: string): Promise<Message | null> {
+  const result = await query<MessageRow>(
+    `UPDATE messages
+     SET content = $1, edited_at = NOW()
+     WHERE id = $2
+     RETURNING *`,
+    [content, id]
+  );
+
+  if (result.rows.length === 0) return null;
+  return rowToMessage(result.rows[0]);
+}
+
+export async function softDeleteMessage(id: string): Promise<void> {
+  await query(
+    `UPDATE messages
+     SET deleted_at = NOW(), content = '[Message deleted]'
+     WHERE id = $1`,
+    [id]
+  );
 }

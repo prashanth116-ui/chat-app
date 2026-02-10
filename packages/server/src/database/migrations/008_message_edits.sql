@@ -1,0 +1,4 @@
+-- Add edit and delete columns to room messages
+ALTER TABLE messages
+ADD COLUMN IF NOT EXISTS edited_at TIMESTAMP,
+ADD COLUMN IF NOT EXISTS deleted_at TIMESTAMP;

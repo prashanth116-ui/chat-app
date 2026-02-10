@@ -191,3 +191,36 @@ export async function usernameExists(username: string): Promise<boolean> {
   );
   return result.rows[0].exists;
 }
+
+export async function getUserWithPassword(id: string): Promise<(User & { passwordHash: string }) | null> {
+  const result = await query<UserRow>(
+    'SELECT * FROM users WHERE id = $1',
+    [id]
+  );
+
+  if (result.rows.length === 0) {
+    return null;
+  }
+
+  const row = result.rows[0];
+  return {
+    ...rowToUser(row),
+    passwordHash: row.password_hash,
+  };
+}
+
+export async function updatePassword(id: string, passwordHash: string): Promise<void> {
+  await query('UPDATE users SET password_hash = $1 WHERE id = $2', [passwordHash, id]);
+}
+
+export async function searchUsers(searchQuery: string, limit: number = 20): Promise<UserPublic[]> {
+  const result = await query<UserRow>(
+    `SELECT * FROM users
+     WHERE username ILIKE $1
+     ORDER BY username
+     LIMIT $2`,
+    [`%${searchQuery}%`, limit]
+  );
+
+  return result.rows.map(rowToPublicUser);
+}

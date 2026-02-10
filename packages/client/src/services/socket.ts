@@ -113,8 +113,14 @@ class SocketService {
     return this.on(SocketEvents.ERROR, callback);
   }
 
+  // Generic emit for custom events
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  private on<T>(event: string, callback: (data: T) => void): () => void {
+  emit(event: string, data?: any): void {
+    this.socket?.emit(event, data);
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  on<T>(event: string, callback: (data: T) => void): () => void {
     if (!this.listeners.has(event)) {
       this.listeners.set(event, new Set());
     }

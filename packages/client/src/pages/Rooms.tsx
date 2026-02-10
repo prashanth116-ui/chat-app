@@ -1,5 +1,4 @@
 import { useState, useMemo } from 'react';
-import type { RoomWithDetails } from '@chat-app/shared';
 import { useRooms } from '../hooks/useRooms';
 import { RoomList } from '../components/rooms/RoomList';
 import { CountryFilter } from '../components/rooms/CountryFilter';

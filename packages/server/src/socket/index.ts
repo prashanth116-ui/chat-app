@@ -7,6 +7,7 @@ import { socketAuthMiddleware } from './middleware/socketAuth.js';
 import { registerChatHandlers } from './handlers/chatHandler.js';
 import { registerRoomHandlers } from './handlers/roomHandler.js';
 import { registerPresenceHandlers } from './handlers/presenceHandler.js';
+import { registerDMHandlers } from './handlers/dmHandler.js';
 
 export function setupSocketIO(httpServer: HttpServer): Server {
   const io = new Server(httpServer, {
@@ -41,6 +42,12 @@ export function setupSocketIO(httpServer: HttpServer): Server {
     registerChatHandlers(io, socket);
     registerRoomHandlers(io, socket);
     registerPresenceHandlers(io, socket);
+    registerDMHandlers(io, socket);
+
+    // Join personal room for notifications
+    if (socket.user) {
+      socket.join(`user:${socket.user.userId}`);
+    }
 
     socket.on('disconnect', (reason) => {
       console.log(`Socket disconnected: ${socket.id}, reason: ${reason}`);

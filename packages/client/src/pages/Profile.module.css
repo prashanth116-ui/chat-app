@@ -88,6 +88,20 @@
   color: var(--text);
 }
 
+.editTitle {
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin-bottom: 1.5rem;
+}
+
+.actions {
+  display: flex;
+  gap: 0.75rem;
+  margin-top: 1.5rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--border);
+}
+
 @media (max-width: 480px) {
   .container {
     padding: 1rem;
@@ -108,5 +122,9 @@
 
   .grid {
     grid-template-columns: 1fr;
+  }
+
+  .actions {
+    flex-direction: column;
   }
 }

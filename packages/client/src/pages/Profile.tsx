@@ -1,14 +1,19 @@
+import { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { calculateAge } from '@chat-app/shared';
 import { useAuth } from '../hooks/useAuth';
 import { useCountries, useStates } from '../hooks/useRooms';
 import { GenderIcon } from '../components/user/GenderIcon';
 import { UserAvatar } from '../components/user/UserAvatar';
+import { EditProfileForm } from '../components/user/EditProfileForm';
+import { Button } from '../components/common/Button';
 import styles from './Profile.module.css';
 
 export function Profile() {
-  const { user } = useAuth();
+  const { user, updateUser } = useAuth();
   const { countries } = useCountries();
   const { states } = useStates(user?.countryId ?? undefined);
+  const [isEditing, setIsEditing] = useState(false);
 
   if (!user) {
     return <div className={styles.container}>Loading...</div>;
@@ -23,6 +28,24 @@ export function Profile() {
     day: 'numeric',
   });
   const isGuest = user.email.endsWith('@guest.local');
+
+  if (isEditing) {
+    return (
+      <div className={styles.container}>
+        <div className={styles.card}>
+          <h1 className={styles.editTitle}>Edit Profile</h1>
+          <EditProfileForm
+            user={user}
+            onSave={(updatedUser) => {
+              updateUser(updatedUser);
+              setIsEditing(false);
+            }}
+            onCancel={() => setIsEditing(false)}
+          />
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className={styles.container}>
@@ -98,6 +121,15 @@ export function Profile() {
               </div>
             </div>
           </div>
+        </div>
+
+        <div className={styles.actions}>
+          <Button onClick={() => setIsEditing(true)}>Edit Profile</Button>
+          {!isGuest && (
+            <Link to="/settings">
+              <Button variant="outline">Settings</Button>
+            </Link>
+          )}
         </div>
       </div>
     </div>

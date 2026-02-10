@@ -1,4 +1,5 @@
 import type { AuthResponse, RegisterRequest, LoginRequest } from '@chat-app/shared';
+import { Gender } from '@chat-app/shared';
 import * as UserModel from '../models/User.js';
 import { hashPassword, verifyPassword } from '../utils/password.js';
 import { signToken, signRefreshToken } from '../utils/jwt.js';
@@ -92,7 +93,7 @@ export async function guestLogin(): Promise<AuthResponse> {
     email: guestEmail,
     passwordHash,
     username: guestUsername,
-    gender: 'other' as const,
+    gender: Gender.OTHER,
     dateOfBirth: '2000-01-01', // Default date for guests (meets age requirement)
   });
 

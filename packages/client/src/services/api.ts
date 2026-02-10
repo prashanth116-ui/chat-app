@@ -11,6 +11,13 @@ import type {
   MessageWithUser,
   Country,
   State,
+  Friendship,
+  FriendWithUser,
+  FriendshipStatusResponse,
+  Conversation,
+  ConversationWithUser,
+  DirectMessageWithUser,
+  Attachment,
 } from '@chat-app/shared';
 
 const API_URL = import.meta.env.VITE_API_URL || '';
@@ -93,7 +100,30 @@ export const users = {
       body: JSON.stringify(data),
     }),
 
+  changePassword: (currentPassword: string, newPassword: string) =>
+    request<{ message: string }>('/api/users/me/password', {
+      method: 'PUT',
+      body: JSON.stringify({ currentPassword, newPassword }),
+    }),
+
+  search: (q: string) => request<UserPublic[]>(`/api/users/search?q=${encodeURIComponent(q)}`),
+
   getUser: (id: string) => request<UserPublic>(`/api/users/${id}`),
+
+  // GDPR
+  exportData: () => request<unknown>('/api/users/me/export'),
+
+  getDeletionStatus: () =>
+    request<{ isScheduled: boolean; scheduledAt: string | null }>('/api/users/me/deletion'),
+
+  requestDeletion: (password: string, confirmation: string) =>
+    request<{ scheduledAt: string }>('/api/users/me/delete', {
+      method: 'POST',
+      body: JSON.stringify({ password, confirmation }),
+    }),
+
+  cancelDeletion: () =>
+    request<{ message: string }>('/api/users/me/delete', { method: 'DELETE' }),
 };
 
 // Rooms API
@@ -138,6 +168,125 @@ export const locations = {
   getCountries: () => request<Country[]>('/api/rooms/locations/countries'),
 
   getStates: (countryId: number) => request<State[]>(`/api/rooms/locations/countries/${countryId}/states`),
+};
+
+// Conversations API
+export const conversations = {
+  list: () => request<ConversationWithUser[]>('/api/conversations'),
+
+  getOrCreate: (userId: string) =>
+    request<Conversation>(`/api/conversations/with/${userId}`, { method: 'POST' }),
+
+  get: (conversationId: string) =>
+    request<ConversationWithUser>(`/api/conversations/${conversationId}`),
+
+  getMessages: (conversationId: string, params?: { limit?: number; before?: string }) => {
+    const searchParams = new URLSearchParams();
+    if (params?.limit) searchParams.set('limit', String(params.limit));
+    if (params?.before) searchParams.set('before', params.before);
+    const query = searchParams.toString();
+    return request<DirectMessageWithUser[]>(
+      `/api/conversations/${conversationId}/messages${query ? `?${query}` : ''}`
+    );
+  },
+
+  sendMessage: (conversationId: string, content: string) =>
+    request<DirectMessageWithUser>(`/api/conversations/${conversationId}/messages`, {
+      method: 'POST',
+      body: JSON.stringify({ content }),
+    }),
+
+  editMessage: (conversationId: string, messageId: string, content: string) =>
+    request<DirectMessageWithUser>(
+      `/api/conversations/${conversationId}/messages/${messageId}`,
+      { method: 'PUT', body: JSON.stringify({ content }) }
+    ),
+
+  deleteMessage: (conversationId: string, messageId: string) =>
+    request<{ message: string }>(
+      `/api/conversations/${conversationId}/messages/${messageId}`,
+      { method: 'DELETE' }
+    ),
+};
+
+// Friends API
+export const friends = {
+  list: () => request<UserPublic[]>('/api/friends'),
+
+  getRequests: () => request<FriendWithUser[]>('/api/friends/requests'),
+
+  getSentRequests: () => request<FriendWithUser[]>('/api/friends/requests/sent'),
+
+  getStatus: (userId: string) => request<FriendshipStatusResponse>(`/api/friends/status/${userId}`),
+
+  sendRequest: (userId: string) =>
+    request<Friendship>(`/api/friends/request/${userId}`, { method: 'POST' }),
+
+  acceptRequest: (friendshipId: string) =>
+    request<Friendship>(`/api/friends/${friendshipId}/accept`, { method: 'PUT' }),
+
+  declineRequest: (friendshipId: string) =>
+    request<{ message: string }>(`/api/friends/${friendshipId}/decline`, { method: 'DELETE' }),
+
+  cancelRequest: (friendshipId: string) =>
+    request<{ message: string }>(`/api/friends/${friendshipId}/cancel`, { method: 'DELETE' }),
+
+  remove: (friendshipId: string) =>
+    request<{ message: string }>(`/api/friends/${friendshipId}`, { method: 'DELETE' }),
+
+  block: (userId: string) =>
+    request<{ message: string }>(`/api/friends/block/${userId}`, { method: 'POST' }),
+
+  unblock: (userId: string) =>
+    request<{ message: string }>(`/api/friends/block/${userId}`, { method: 'DELETE' }),
+
+  getBlocked: () => request<UserPublic[]>('/api/friends/blocked'),
+
+  isBlocked: (userId: string) => request<{ isBlocked: boolean }>(`/api/friends/block/${userId}`),
+};
+
+// Uploads API
+export const uploads = {
+  getStatus: () => request<{ enabled: boolean }>('/api/uploads/status'),
+
+  uploadAvatar: async (file: File) => {
+    const formData = new FormData();
+    formData.append('avatar', file);
+
+    const token = localStorage.getItem('accessToken');
+    const response = await fetch(`${API_URL}/api/uploads/avatar`, {
+      method: 'POST',
+      headers: token ? { Authorization: `Bearer ${token}` } : {},
+      body: formData,
+    });
+
+    const data = await response.json();
+    if (!response.ok) {
+      throw new ApiError(data.error || 'Upload failed', response.status);
+    }
+    return data as { url: string };
+  },
+
+  uploadFile: async (file: File) => {
+    const formData = new FormData();
+    formData.append('file', file);
+
+    const token = localStorage.getItem('accessToken');
+    const response = await fetch(`${API_URL}/api/uploads/file`, {
+      method: 'POST',
+      headers: token ? { Authorization: `Bearer ${token}` } : {},
+      body: formData,
+    });
+
+    const data = await response.json();
+    if (!response.ok) {
+      throw new ApiError(data.error || 'Upload failed', response.status);
+    }
+    return data as Attachment;
+  },
+
+  deleteAttachment: (attachmentId: string) =>
+    request<{ message: string }>(`/api/uploads/${attachmentId}`, { method: 'DELETE' }),
 };
 
 export { ApiError };

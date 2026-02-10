@@ -200,3 +200,42 @@ export async function getRoomMembers(roomId: string): Promise<RoomMember[]> {
     joinedAt: row.joined_at.toISOString(),
   }));
 }
+
+export async function getMemberRole(roomId: string, userId: string): Promise<'owner' | 'admin' | 'member' | null> {
+  const result = await query<RoomMemberRow>(
+    'SELECT * FROM room_members WHERE room_id = $1 AND user_id = $2',
+    [roomId, userId]
+  );
+  return result.rows.length > 0 ? result.rows[0].role : null;
+}
+
+export async function updateMemberRole(
+  roomId: string,
+  userId: string,
+  role: 'admin' | 'member'
+): Promise<void> {
+  await query(
+    'UPDATE room_members SET role = $1 WHERE room_id = $2 AND user_id = $3 AND role != $4',
+    [role, roomId, userId, 'owner']
+  );
+}
+
+export async function searchRooms(searchQuery: string, limit: number = 20): Promise<RoomWithDetails[]> {
+  const result = await query<RoomRow>(
+    `SELECT r.*,
+            c.name as country_name,
+            c.flag_emoji as country_flag,
+            s.name as state_name,
+            (SELECT COUNT(*) FROM room_members WHERE room_id = r.id) as member_count,
+            0 as online_count
+     FROM rooms r
+     LEFT JOIN countries c ON r.country_id = c.id
+     LEFT JOIN states s ON r.state_id = s.id
+     WHERE r.is_private = false AND r.name ILIKE $1
+     ORDER BY r.created_at DESC
+     LIMIT $2`,
+    [`%${searchQuery}%`, limit]
+  );
+
+  return result.rows.map(rowToRoomWithDetails);
+}

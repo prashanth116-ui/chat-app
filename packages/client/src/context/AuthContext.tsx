@@ -19,6 +19,7 @@ interface AuthContextType {
     stateId?: number;
   }) => Promise<void>;
   logout: () => void;
+  updateUser: (user: User) => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -101,6 +102,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setUser(null);
   };
 
+  const updateUser = (updatedUser: User) => {
+    setUser(updatedUser);
+  };
+
   return (
     <AuthContext.Provider
       value={{
@@ -111,6 +116,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         loginAsGuest,
         register,
         logout,
+        updateUser,
       }}
     >
       {children}

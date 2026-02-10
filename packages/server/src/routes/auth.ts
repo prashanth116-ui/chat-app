@@ -39,7 +39,7 @@ router.post('/login', validate(loginSchema), async (req, res) => {
   }
 });
 
-router.post('/guest', async (req, res) => {
+router.post('/guest', async (_req, res) => {
   try {
     const result = await authService.guestLogin();
     res.status(201).json(result);

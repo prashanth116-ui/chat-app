@@ -7,6 +7,9 @@ import authRoutes from './routes/auth.js';
 import userRoutes from './routes/users.js';
 import roomRoutes from './routes/rooms.js';
 import messageRoutes from './routes/messages.js';
+import friendRoutes from './routes/friends.js';
+import conversationRoutes from './routes/conversations.js';
+import uploadRoutes from './routes/uploads.js';
 
 const app: Express = express();
 
@@ -35,6 +38,9 @@ app.get('/health', (_req, res) => {
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/rooms', roomRoutes);
+app.use('/api/friends', friendRoutes);
+app.use('/api/conversations', conversationRoutes);
+app.use('/api/uploads', uploadRoutes);
 app.use('/api', messageRoutes);
 
 // 404 handler

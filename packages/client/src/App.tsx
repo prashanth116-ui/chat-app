@@ -1,12 +1,17 @@
 import { BrowserRouter, Routes, Route, Link, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { SocketProvider } from './context/SocketContext';
+import { ThemeProvider } from './context/ThemeContext';
 import { Home } from './pages/Home';
 import { Login } from './pages/Login';
 import { Register } from './pages/Register';
 import { Rooms } from './pages/Rooms';
 import { Chat } from './pages/Chat';
 import { Profile } from './pages/Profile';
+import { Settings } from './pages/Settings';
+import { Friends } from './pages/Friends';
+import { Messages } from './pages/Messages';
+import { Conversation } from './pages/Conversation';
 import { Button } from './components/common/Button';
 import { GenderIcon } from './components/user/GenderIcon';
 import styles from './App.module.css';
@@ -26,6 +31,12 @@ function NavBar() {
             <>
               <Link to="/rooms" className={styles.navLink}>
                 Rooms
+              </Link>
+              <Link to="/friends" className={styles.navLink}>
+                Friends
+              </Link>
+              <Link to="/messages" className={styles.navLink}>
+                Messages
               </Link>
               <Link to="/profile" className={styles.usernameLink}>
                 {user?.gender && <GenderIcon gender={user.gender} size="sm" />}
@@ -104,6 +115,38 @@ function AppRoutes() {
         }
       />
       <Route
+        path="/settings"
+        element={
+          <ProtectedRoute>
+            <Settings />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/friends"
+        element={
+          <ProtectedRoute>
+            <Friends />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/messages"
+        element={
+          <ProtectedRoute>
+            <Messages />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/messages/:conversationId"
+        element={
+          <ProtectedRoute>
+            <Conversation />
+          </ProtectedRoute>
+        }
+      />
+      <Route
         path="/chat/:roomId"
         element={
           <ProtectedRoute>
@@ -119,16 +162,18 @@ function AppRoutes() {
 export function App() {
   return (
     <BrowserRouter>
-      <AuthProvider>
-        <SocketProvider>
-          <div className={styles.app}>
-            <NavBar />
-            <main className={styles.main}>
-              <AppRoutes />
-            </main>
-          </div>
-        </SocketProvider>
-      </AuthProvider>
+      <ThemeProvider>
+        <AuthProvider>
+          <SocketProvider>
+            <div className={styles.app}>
+              <NavBar />
+              <main className={styles.main}>
+                <AppRoutes />
+              </main>
+            </div>
+          </SocketProvider>
+        </AuthProvider>
+      </ThemeProvider>
     </BrowserRouter>
   );
 }
