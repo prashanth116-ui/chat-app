@@ -77,3 +77,28 @@ export async function refreshTokens(userId: string, email: string): Promise<{ ac
 
   return { accessToken, refreshToken };
 }
+
+export async function guestLogin(): Promise<AuthResponse> {
+  // Generate unique guest identifiers
+  const guestId = `guest_${Date.now()}_${Math.random().toString(36).substring(2, 8)}`;
+  const guestEmail = `${guestId}@guest.local`;
+  const guestUsername = `Guest_${Math.random().toString(36).substring(2, 8)}`;
+
+  // Create a random password hash (guest can't login with password)
+  const passwordHash = await hashPassword(Math.random().toString(36));
+
+  // Create guest user with minimal info
+  const user = await UserModel.createUser({
+    email: guestEmail,
+    passwordHash,
+    username: guestUsername,
+    gender: 'other' as const,
+    dateOfBirth: '2000-01-01', // Default date for guests (meets age requirement)
+  });
+
+  // Generate tokens
+  const accessToken = signToken({ userId: user.id, email: user.email });
+  const refreshToken = signRefreshToken({ userId: user.id, email: user.email });
+
+  return { user, accessToken, refreshToken };
+}

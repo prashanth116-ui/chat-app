@@ -39,6 +39,16 @@ router.post('/login', validate(loginSchema), async (req, res) => {
   }
 });
 
+router.post('/guest', async (req, res) => {
+  try {
+    const result = await authService.guestLogin();
+    res.status(201).json(result);
+  } catch (error) {
+    console.error('Guest login error:', error);
+    res.status(500).json({ error: 'Guest login failed' });
+  }
+});
+
 router.post('/refresh', async (req, res) => {
   try {
     const { refreshToken } = req.body;

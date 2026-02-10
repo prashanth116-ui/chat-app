@@ -2,6 +2,9 @@
   "name": "chat-app",
   "version": "1.0.0",
   "private": true,
+  "pnpm": {
+    "onlyBuiltDependencies": ["bcrypt", "esbuild"]
+  },
   "scripts": {
     "dev": "pnpm run --parallel dev",
     "build": "pnpm run -r build",

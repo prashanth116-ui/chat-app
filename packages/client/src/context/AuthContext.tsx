@@ -8,6 +8,7 @@ interface AuthContextType {
   isLoading: boolean;
   isAuthenticated: boolean;
   login: (email: string, password: string) => Promise<void>;
+  loginAsGuest: () => Promise<void>;
   register: (data: {
     email: string;
     password: string;
@@ -69,6 +70,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     await connectSocket();
   };
 
+  const loginAsGuest = async () => {
+    const response = await authApi.guest();
+    localStorage.setItem('accessToken', response.accessToken);
+    localStorage.setItem('refreshToken', response.refreshToken);
+    setUser(response.user);
+    await connectSocket();
+  };
+
   const register = async (data: {
     email: string;
     password: string;
@@ -99,6 +108,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         isLoading,
         isAuthenticated: !!user,
         login,
+        loginAsGuest,
         register,
         logout,
       }}

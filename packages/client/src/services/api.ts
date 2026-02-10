@@ -69,6 +69,11 @@ export const auth = {
       body: JSON.stringify(data),
     }),
 
+  guest: () =>
+    request<AuthResponse>('/api/auth/guest', {
+      method: 'POST',
+    }),
+
   refresh: (refreshToken: string) =>
     request<{ accessToken: string; refreshToken: string }>('/api/auth/refresh', {
       method: 'POST',

@@ -6,11 +6,12 @@ import { useAuth } from '../../hooks/useAuth';
 import styles from './AuthForm.module.css';
 
 export function LoginForm() {
-  const { login } = useAuth();
+  const { login, loginAsGuest } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [isGuestLoading, setIsGuestLoading] = useState(false);
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
@@ -23,6 +24,19 @@ export function LoginForm() {
       setError(err instanceof Error ? err.message : 'Login failed');
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const handleGuestLogin = async () => {
+    setError(null);
+    setIsGuestLoading(true);
+
+    try {
+      await loginAsGuest();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Guest login failed');
+    } finally {
+      setIsGuestLoading(false);
     }
   };
 
@@ -57,6 +71,20 @@ export function LoginForm() {
 
       <Button type="submit" isLoading={isLoading} className={styles.submitButton}>
         Sign In
+      </Button>
+
+      <div className={styles.divider}>
+        <span>or</span>
+      </div>
+
+      <Button
+        type="button"
+        variant="secondary"
+        isLoading={isGuestLoading}
+        onClick={handleGuestLogin}
+        className={styles.submitButton}
+      >
+        Continue as Guest
       </Button>
 
       <p className={styles.footer}>
