@@ -59,6 +59,24 @@
   color: var(--text-secondary);
 }
 
+.usernameLink {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.375rem 0.75rem;
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+  text-decoration: none;
+  border-radius: var(--radius-md);
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.usernameLink:hover {
+  color: var(--text);
+  background-color: var(--surface);
+  text-decoration: none;
+}
+
 .main {
   flex: 1;
   display: flex;

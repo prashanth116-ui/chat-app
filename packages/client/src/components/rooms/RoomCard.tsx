@@ -7,6 +7,8 @@ interface RoomCardProps {
 }
 
 export function RoomCard({ room }: RoomCardProps) {
+  const { genderCounts } = room;
+
   return (
     <Link to={`/chat/${room.id}`} className={styles.card}>
       <div className={styles.header}>
@@ -28,7 +30,13 @@ export function RoomCard({ room }: RoomCardProps) {
             <span className={styles.onlineDot} />
             {room.onlineCount} online
           </span>
-          <span className={styles.members}>{room.memberCount} members</span>
+          {genderCounts && room.onlineCount > 0 && (
+            <span className={styles.genderStats}>
+              <span className={styles.male} title="Male">{genderCounts.male}</span>
+              <span className={styles.female} title="Female">{genderCounts.female}</span>
+              <span className={styles.other} title="Other">{genderCounts.other}</span>
+            </span>
+          )}
         </div>
       </div>
     </Link>

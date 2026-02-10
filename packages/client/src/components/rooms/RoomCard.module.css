@@ -82,3 +82,43 @@
 .members {
   color: var(--text-muted);
 }
+
+.genderStats {
+  display: flex;
+  gap: 0.5rem;
+  font-size: 0.75rem;
+}
+
+.genderStats span {
+  display: flex;
+  align-items: center;
+  gap: 0.125rem;
+}
+
+.genderStats span::before {
+  font-size: 0.875rem;
+}
+
+.male {
+  color: #3b82f6;
+}
+
+.male::before {
+  content: '\2642';
+}
+
+.female {
+  color: #ec4899;
+}
+
+.female::before {
+  content: '\2640';
+}
+
+.other {
+  color: #8b5cf6;
+}
+
+.other::before {
+  content: '\26AA';
+}

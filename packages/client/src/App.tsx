@@ -6,7 +6,9 @@ import { Login } from './pages/Login';
 import { Register } from './pages/Register';
 import { Rooms } from './pages/Rooms';
 import { Chat } from './pages/Chat';
+import { Profile } from './pages/Profile';
 import { Button } from './components/common/Button';
+import { GenderIcon } from './components/user/GenderIcon';
 import styles from './App.module.css';
 
 function NavBar() {
@@ -25,7 +27,10 @@ function NavBar() {
               <Link to="/rooms" className={styles.navLink}>
                 Rooms
               </Link>
-              <span className={styles.username}>{user?.username}</span>
+              <Link to="/profile" className={styles.usernameLink}>
+                {user?.gender && <GenderIcon gender={user.gender} size="sm" />}
+                {user?.username}
+              </Link>
               <Button variant="ghost" size="sm" onClick={logout}>
                 Sign Out
               </Button>
@@ -87,6 +92,14 @@ function AppRoutes() {
         element={
           <ProtectedRoute>
             <Rooms />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/profile"
+        element={
+          <ProtectedRoute>
+            <Profile />
           </ProtectedRoute>
         }
       />

@@ -12,12 +12,19 @@ export interface Room {
   createdAt: string;
 }
 
+export interface GenderCounts {
+  male: number;
+  female: number;
+  other: number;
+}
+
 export interface RoomWithDetails extends Room {
   countryName?: string;
   countryFlag?: string;
   stateName?: string;
   onlineCount: number;
   memberCount: number;
+  genderCounts?: GenderCounts;
 }
 
 export interface RoomMember {

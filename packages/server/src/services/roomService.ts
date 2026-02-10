@@ -1,7 +1,19 @@
-import type { Room, RoomWithDetails, CreateRoomRequest } from '@chat-app/shared';
+import type { Room, RoomWithDetails, CreateRoomRequest, GenderCounts } from '@chat-app/shared';
 import * as RoomModel from '../models/Room.js';
 import { getOnlineUsers } from '../config/redis.js';
 import { getPublicUsersByIds } from '../models/User.js';
+
+function calculateGenderCounts(users: { gender: string }[]): GenderCounts {
+  return users.reduce(
+    (counts, user) => {
+      if (user.gender === 'male') counts.male++;
+      else if (user.gender === 'female') counts.female++;
+      else counts.other++;
+      return counts;
+    },
+    { male: 0, female: 0, other: 0 }
+  );
+}
 
 export async function createRoom(data: CreateRoomRequest, userId: string): Promise<Room> {
   return RoomModel.createRoom({
@@ -34,11 +46,19 @@ export async function getRooms(options: {
 }): Promise<RoomWithDetails[]> {
   const rooms = await RoomModel.getRoomsWithDetails(options);
 
-  // Get online counts from Redis for each room
+  // Get online counts and gender distribution from Redis for each room
   await Promise.all(
     rooms.map(async (room) => {
       const onlineUserIds = await getOnlineUsers(room.id);
       room.onlineCount = onlineUserIds.length;
+
+      // Get gender distribution for online users
+      if (onlineUserIds.length > 0) {
+        const onlineUsers = await getPublicUsersByIds(onlineUserIds);
+        room.genderCounts = calculateGenderCounts(onlineUsers);
+      } else {
+        room.genderCounts = { male: 0, female: 0, other: 0 };
+      }
     })
   );
 
