@@ -148,6 +148,88 @@ pnpm lint
 - `user_typing` - User typing
 - `online_users` - Online users list
 
+## Production Deployment (DigitalOcean Droplet)
+
+### 1. Create a Droplet
+
+1. Log in to [DigitalOcean](https://cloud.digitalocean.com/)
+2. Create a new Droplet:
+   - **Image**: Ubuntu 24.04 LTS
+   - **Size**: Basic $12/mo (2GB RAM) or higher recommended
+   - **Region**: Choose closest to your users
+   - **Authentication**: SSH keys (recommended)
+
+### 2. Set Up the Server
+
+SSH into your droplet and run:
+
+```bash
+# Update system
+apt update && apt upgrade -y
+
+# Install Docker
+curl -fsSL https://get.docker.com | sh
+
+# Install Docker Compose
+apt install docker-compose-plugin -y
+
+# Install Git
+apt install git -y
+
+# Clone your repo
+git clone <your-repo-url> /opt/chat-app
+cd /opt/chat-app
+
+# Set up environment
+cp .env.production .env
+nano .env  # Edit with your values
+```
+
+### 3. Configure Environment
+
+Edit `.env` with secure values:
+
+```bash
+POSTGRES_PASSWORD=<generate-strong-password>
+JWT_SECRET=<generate-with: openssl rand -base64 32>
+```
+
+### 4. Deploy
+
+```bash
+chmod +x scripts/deploy.sh
+./scripts/deploy.sh
+```
+
+### 5. Access Your App
+
+Open `http://<your-droplet-ip>` in a browser.
+
+### Useful Commands
+
+```bash
+# View logs
+docker compose -f docker-compose.prod.yml logs -f
+
+# Restart services
+docker compose -f docker-compose.prod.yml restart
+
+# Stop everything
+docker compose -f docker-compose.prod.yml down
+
+# Update and redeploy
+git pull && ./scripts/deploy.sh
+```
+
+### Adding a Domain (Optional)
+
+1. Point your domain's A record to your droplet IP
+2. Install Certbot for SSL:
+   ```bash
+   apt install certbot python3-certbot-nginx -y
+   certbot --nginx -d yourdomain.com
+   ```
+
 ## License
 
 MIT

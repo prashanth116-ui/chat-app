@@ -1,0 +1,55 @@
+# Build stage
+FROM node:20-alpine AS builder
+
+WORKDIR /app
+
+# Install pnpm
+RUN npm install -g pnpm
+
+# Copy workspace files
+COPY package.json pnpm-workspace.yaml ./
+COPY packages/shared/package.json ./packages/shared/
+COPY packages/server/package.json ./packages/server/
+
+# Install dependencies
+RUN pnpm install
+
+# Copy source code
+COPY packages/shared ./packages/shared
+COPY packages/server ./packages/server
+COPY tsconfig.base.json ./
+
+# Build shared package
+RUN pnpm --filter @chat-app/shared build
+
+# Build server
+RUN pnpm --filter @chat-app/server build
+
+# Production stage
+FROM node:20-alpine
+
+WORKDIR /app
+
+# Install pnpm
+RUN npm install -g pnpm
+
+# Copy package files
+COPY package.json pnpm-workspace.yaml ./
+COPY packages/shared/package.json ./packages/shared/
+COPY packages/server/package.json ./packages/server/
+
+# Install production dependencies only
+RUN pnpm install --prod
+
+# Copy built files from builder
+COPY --from=builder /app/packages/shared/dist ./packages/shared/dist
+COPY --from=builder /app/packages/server/dist ./packages/server/dist
+
+# Copy migrations if they exist
+COPY packages/server/src/db/migrations ./packages/server/src/db/migrations 2>/dev/null || true
+
+EXPOSE 3001
+
+ENV NODE_ENV=production
+
+CMD ["node", "packages/server/dist/index.js"]
