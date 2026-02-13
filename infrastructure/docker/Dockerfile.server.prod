@@ -45,8 +45,8 @@ RUN pnpm install --prod
 COPY --from=builder /app/packages/shared/dist ./packages/shared/dist
 COPY --from=builder /app/packages/server/dist ./packages/server/dist
 
-# Copy migrations if they exist
-COPY packages/server/src/db/migrations ./packages/server/src/db/migrations 2>/dev/null || true
+# Copy migrations
+COPY packages/server/src/database/migrations ./packages/server/src/database/migrations
 
 EXPOSE 3001
 
